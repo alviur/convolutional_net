@@ -111,7 +111,7 @@ void Convolutional::on_pushButton_released()
 void Convolutional::on_pushButton_2_released()
 {
 
-    net.setConvolutionNetwork(vec[0],5,15,25,50);
+    net.setConvolutionNetwork(vec[0],5,15,25,50,10);
     net.fowardPropagation(vec[0]);
 
 

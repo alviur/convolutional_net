@@ -29,7 +29,7 @@ public:
 
     //capa 2
     vector<cv::Mat> layer2;
-    vector<cv::Mat> weightsLayer2;
+    vector<vector<cv::Mat> > weightsLayer2;
     vector<float> biasLayer2;
 
     //capa 3
@@ -43,14 +43,29 @@ public:
     vector<float> biasLayer4;
 
 
+    //Output layer
+    vector<float> output;
+    vector<vector<cv::Mat> > weightsOut;
+
+    //derivates
+    std::vector<float> outputDerivates;
+    vector<cv::Mat> derivatesLayer1;
+    vector<cv::Mat> derivatesLayer2;
+    vector<cv::Mat> derivatesLayer3;
+    vector<cv::Mat> derivatesLayer4;
+
+
+
 
 
 
     ///Methods
     //void setConvolutionNetwork(int numberFeatureMaps1,int NeuronsFeatureMaps1,int numberFeatureMaps2,int NeuronsFeatureMaps2,int numberFeatureMaps3,int NeuronsFeatureMaps3,int numberFeatureMaps4,int NeuronsFeatureMaps4);
-    void setConvolutionNetwork(cv::Mat inputImage,int numberFeatureMaps1,int numberFeatureMaps2,int numberFeatureMaps3,
-                               int numberFeatureMaps4);
+    void setConvolutionNetwork(cv::Mat inputImage, int numberFeatureMaps1, int numberFeatureMaps2, int numberFeatureMaps3,
+                               int numberFeatureMaps4, int classes);
     int fowardPropagation(cv::Mat img_src);
+
+    int backPropagation(int error, int classes, vector<int> outs,vector<cv::Mat> images);
 
 
 
