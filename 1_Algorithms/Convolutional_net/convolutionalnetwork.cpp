@@ -52,6 +52,8 @@ void ConvolutionalNetwork::setConvolutionNetwork(cv::Mat inputImage,int numberFe
 
     output.assign(classes,0.0);
 
+   // for(int l=0; l<classes;l++)qDebug()<<"Seteo"<< output[l];
+
 
     //Set number of feature maps per layer
 
@@ -82,9 +84,23 @@ void ConvolutionalNetwork::setConvolutionNetwork(cv::Mat inputImage,int numberFe
     weigtSample1.create(5,5,CV_32F);
     weigtSample1.setTo(cv::Scalar(0));
     weightOut1.create(4,4,CV_32F);
+    weightOut1.setTo(cv::Scalar(0));
+
+
+
+    for(int n=0;n<weightOut1.rows;n++)
+    {
+        for(int m=0;m<weightOut1.cols;m++)
+        {
+            weightOut1.at<float>(n,m)=0.0;
+
+        }
+
+    }
 
 
     weightsLayer1.assign(numberFeatureMaps1,weigtSample1);
+
 //    for(int i=0;i<numberFeatureMaps1;i++)
 //    {
 //        weightsLayer1.push_back(weigtSample1);
@@ -113,6 +129,13 @@ void ConvolutionalNetwork::setConvolutionNetwork(cv::Mat inputImage,int numberFe
     weightsLayer4.push_back(weigtSample1);
     }
 
+//    for(int i=0;i<numberFeatureMaps2;i++)
+//    {
+//    weightOut.push_back(weightOut1);
+//    }
+
+   // weightOut.assign(numberFeatureMaps2,weightOut1);
+
     for(int i=0;i<numberFeatureMaps2;i++)
     {
     weightOut.push_back(weightOut1);
@@ -124,6 +147,37 @@ void ConvolutionalNetwork::setConvolutionNetwork(cv::Mat inputImage,int numberFe
     }
 
 
+
+    for(int c=0;c<classes;c++)
+    {
+
+        for(int f=0;f<layer2.size();f++)
+        {
+
+            for(int i=0;i<layer2[f].rows;i++)
+            {
+                for(int j=0;j<layer2[f].cols;j++)
+                {
+
+                    //qDebug()<<"LLeno"<<  weightsOut[c][f].at<float>(i,j)<<"Clase:"<<c<<"fila:"<<i<<"Columna:"<<j;
+                    //qDebug()<<"filas totales:"<<layer2[f].rows<<"Columnas totales:"<<layer2[f].cols<<"Capas"<<layer2.size();
+                    weightsOut[c][f].at<float>(i,j)=0;
+
+
+                }
+
+            }
+
+        }
+
+
+
+    }
+
+
+
+
+      //weightsOut.assign(classes,weightOut);
 
 }
 
@@ -155,7 +209,7 @@ int ConvolutionalNetwork::fowardPropagation(cv::Mat img_src)
                 {
 
 
-                    if(i<5 && j<5)qDebug()<<"pesos"<<weightsLayer1[featureMap].at<float>(i,j);
+                    //if(i<5 && j<5)qDebug()<<"pesos"<<weightsLayer1[featureMap].at<float>(i,j);
 
                     //scan receptive field
                     for(int n=0;n<weightsLayer1[0].rows;n++)
@@ -164,7 +218,7 @@ int ConvolutionalNetwork::fowardPropagation(cv::Mat img_src)
                         {
 
                        ///qDebug()<<"pesos"<<weightsLayer1[featureMap].at<float>(n,m);
-                        qDebug()<<"Neurons"<<layer1[featureMap].at<float>(i,j)<<" ";
+                       // qDebug()<<"Neurons"<<layer1[featureMap].at<float>(i,j)<<" ";
                         ///qDebug()<<"Imagen"<<img_src.at<uchar>(i+n,j+m)*weightsLayer1[featureMap].at<float>(n,m);
 
 //                            qDebug()<<layer1[featureMap].at<float>(i,j)<<" "<<img_src.at<uchar>(i+n,j+m)<<" "<<weightsLayer1[featureMap].at<float>(n,m);
@@ -203,8 +257,8 @@ int featureMapL1=0;
 
                 for(int j=0;j<layer2[featureMap].cols;j++)
                 {
-                    if(i+3<layer1[featureMap].rows && j+3<layer1[featureMap].cols)
-                    {
+//                    if(i+weightsLayer2[featureMapL1][featureMap].rows<layer1[featureMap].rows && j+weightsLayer2[featureMapL1][featureMap].rows<layer1[featureMap].cols)
+//                    {
 
 
 
@@ -218,18 +272,72 @@ int featureMapL1=0;
                                 //qDebug()<<"Asigne valor 2!!"<<n<<m;
 
                                 if(featureMapL1 +2<5){
-                                layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
-                                layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
-                                layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+2].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1+2][featureMap].at<float>(n,m);
+                                    if(i+n<layer1[featureMapL1].rows && j+m<layer1[featureMapL1].cols )
+                                    {
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+2].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1+2][featureMap].at<float>(n,m);
+                                    }
 
+
+                                      else if(i+n<layer1[featureMapL1].rows && j+m>layer1[featureMapL1].cols )
+                                    {
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i+n,j)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+2].at<uchar>(i+n,j)*weightsLayer2[featureMapL1+2][featureMap].at<float>(n,m);
+                                    }
+
+                                    else if(i+n>layer1[featureMapL1].rows && j+m<layer1[featureMapL1].cols )
+                                    {
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i,j+m)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+2].at<uchar>(i,j+m)*weightsLayer2[featureMapL1+2][featureMap].at<float>(n,m);
+                                    }
+
+                                    else if(i+n>layer1[featureMapL1].rows && j+m>layer1[featureMapL1].cols )
+                                    {
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i,j)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i,j)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+2].at<uchar>(i,j)*weightsLayer2[featureMapL1+2][featureMap].at<float>(n,m);
+                                    }
                                 }
 
                                 else if(featureMapL1+1<5)
                                 {
-                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
+                                    if(i+n<layer1[featureMapL1].rows && j+m<layer1[featureMapL1].cols )
+                                    {
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
 
-                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
-                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+                                    }
+
+                                    else if(i+n<layer1[featureMapL1].rows && j+m>layer1[featureMapL1].cols )
+                                  {
+
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i+n,j)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i+n,j)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+
+                                   }
+
+                                    else if(i+n>layer1[featureMapL1].rows && j+m<layer1[featureMapL1].cols )
+                                    {
+
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i,j+m)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i,j+m)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+
+
+                                     }
+
+                                    else if(i+n>layer1[featureMapL1].rows && j+m>layer1[featureMapL1].cols )
+                                    {
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i,j)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i,j)*weightsLayer2[featureMapL1+1][featureMap].at<float>(n,m);
+                                        layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1+1].at<uchar>(i,j)*weightsLayer2[featureMapL1+2][featureMap].at<float>(n,m);
+                                    }
+
 
                                 }
 
@@ -237,20 +345,47 @@ int featureMapL1=0;
                                 else if(featureMapL1<5)
                                 {
 
+
+                                    if(i+n<layer1[featureMapL1].rows && j+m<layer1[featureMapL1].cols )
+                                    {
                                     layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-2].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1-2][featureMap].at<float>(n,m);
                                     layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
-
                                     layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
 
+                                     }
+
+                                    if(i+n<layer1[featureMapL1].rows && j+m>layer1[featureMapL1].cols )
+                                    {
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-2].at<uchar>(i+n,j)*weightsLayer2[featureMapL1-2][featureMap].at<float>(n,m);
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i+n,j)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i+n,j)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+
+                                     }
+
+                                    if(i+n>layer1[featureMapL1].rows && j+m<layer1[featureMapL1].cols )
+                                    {
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-2].at<uchar>(i,j+m)*weightsLayer2[featureMapL1-2][featureMap].at<float>(n,m);
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i,j+m)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i,j+m)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+
+                                     }
+
+                                    if(i+n>layer1[featureMapL1].rows && j+m>layer1[featureMapL1].cols )
+                                    {
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-2].at<uchar>(i,j)*weightsLayer2[featureMapL1-2][featureMap].at<float>(n,m);
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1-1].at<uchar>(i,j)*weightsLayer2[featureMapL1-1][featureMap].at<float>(n,m);
+                                    layer2[featureMap].at<float>(i,j)+=layer1[featureMapL1].at<uchar>(i,j)*weightsLayer2[featureMapL1][featureMap].at<float>(n,m);
+
+                                     }
                                 }
 
 
 
                             }
-                        }
+                       //}
 
                         layer2[featureMap].at<float>(i,j)=tanh(layer2[featureMap].at<float>(i,j))*255;
-                        qDebug()<<"Asigne valor 2!!"<<i<<j<< layer2[featureMap].rows<<layer2[featureMap].cols<<featureMap<<layer2.size();
+                       // qDebug()<<"Asigne valor 2!!"<<i<<j<< layer2[featureMap].rows<<layer2[featureMap].cols<<featureMap<<layer2.size();
                     }
 
                 }
@@ -260,6 +395,7 @@ int featureMapL1=0;
 
             featureMapL1++;
             if(featureMapL1>4)featureMapL1=0;
+            //qDebug()<<"ACABE"<<featureMap;
 
     }
 
@@ -272,7 +408,7 @@ int featureMapL1=0;
 
 /// Layer 3
 
-//    int featureMapL1=0;
+/*    int featureMapL1=0;
 
 //        for(int featureMap=0;featureMap<layer2.size();featureMap++)
 //         {
@@ -324,7 +460,7 @@ int featureMapL1=0;
 
 //                        layer2[featureMap].at<float>(i,j)=tanh(layer2[featureMap].at<float>(i,j))*255;
 //                        qDebug()<<"Asigne valor 2!!"<<i<<j<< layer2[featureMap].rows<<layer2[featureMap].cols<<featureMap<<layer2.size();
-//                    }
+//                   }
 
 //                }
 
@@ -333,7 +469,7 @@ int featureMapL1=0;
 
 //        }
 
-
+*/
 
         /// Output Layer
 
@@ -356,6 +492,7 @@ int featureMapL1=0;
                 }
 
             }
+            qDebug()<< "Clase"<<output[c];
 
 
         }
